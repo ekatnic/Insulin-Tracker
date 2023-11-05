@@ -11,7 +11,9 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             VStack {
-                EntryHeader()
+                VStack{
+                    EntryHeader()
+                }.frame(maxWidth: .infinity, alignment: .center)
                 VStack{
                     TimeSelector()
                     EntryTypeSelector()
@@ -19,12 +21,12 @@ struct ContentView: View {
                     EnteredBySelector()
                     ValidatedBySelector()
                     Note()
-                    Button(action: {}) {
-                        Text("Enter")
-                    }
-                    Spacer()
-                }
+                }.overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(.gray, lineWidth: 2)
+                )
 
+                RecommendationPanel()
             }
         }
         .padding()
@@ -53,7 +55,7 @@ struct EntryHeader: View {
 struct TimeSelector: View {
     var body: some View {
         VStack{
-            DatePicker(selection: /*@START_MENU_TOKEN@*/.constant(Date())/*@END_MENU_TOKEN@*/, label: { Text("Time").font(.system(size:24, weight: .medium)) })
+            DatePicker(selection: /*@START_MENU_TOKEN@*/.constant(Date())/*@END_MENU_TOKEN@*/, label: { Text("Time").font(.system(size:20, weight: .medium)) })
         }.padding()
     }
 }
@@ -61,7 +63,7 @@ struct TimeSelector: View {
 struct EntryTypeSelector: View {
     var body: some View {
         VStack{
-            Text("Entry Type").font(.system(size:24, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
+            Text("Entry Type").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
             
         }.padding()
         ControlGroup {
@@ -78,6 +80,7 @@ struct EntryTypeSelector: View {
                 Text("Other")
             }
         }
+        .padding(.horizontal)
     }
 }
 
@@ -85,7 +88,7 @@ struct BloodSugarSelector: View {
     var body: some View {
         VStack{
             HStack{
-                Text("Blood Sugar Level").font(.system(size:24, weight: .medium))
+                Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
                 TextField("Level", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
                 
             }
@@ -97,7 +100,7 @@ struct EnteredBySelector: View {
     var body: some View {
         VStack{
             HStack{
-                Text("Entered By").font(.system(size:24, weight: .medium))
+                Text("Entered By").font(.system(size:18, weight: .medium))
                 Spacer()
                 TextField("Name", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
             }
@@ -109,10 +112,10 @@ struct ValidatedBySelector: View {
     var body: some View {
         VStack{
             HStack{
-                Text("Validated By").font(.system(size:18, weight: .medium))
+                Text("Validated By").font(.system(size:15, weight: .medium))
                 TextField("Name", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
                 Spacer()
-                Text("Pin").font(.system(size:24, weight: .medium))
+                Text("Pin").font(.system(size:15, weight: .medium))
                 TextField("Pin", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
                 Spacer()
             }
@@ -121,12 +124,35 @@ struct ValidatedBySelector: View {
 }
 
 struct Note: View {
+    @State var fullText: String = "Write your note here..."
+
     var body: some View {
         VStack{
-            HStack{
-                Text("Note").font(.system(size:24, weight: .medium)).padding(.leading).frame(maxWidth: .infinity, alignment: .leading)
+            TextEditor(text: $fullText).font(.custom("HelveticaNeue", size: 13))
+                .frame(width: 326.0, height: 100)
+        }
+    }
+}
+
+struct RecommendationPanel: View {
+    var body: some View {
+        VStack{
+            Spacer()
+            Text("Placeholder of Recommended Dosage")
+            Spacer()
+            HStack {
+                Button(action: {}) {
+                    Text("Calculate Dosage")
+                }
+                .padding([.top, .trailing], 20.0)
+                
+                Button(action: {}) {
+                    Text("Submit ")
+                }
+                .padding([.top, .leading], 20.0)
+
             }
-            TextEditor(text: .constant("Write your note here..."))
+            Spacer()
         }
     }
 }
