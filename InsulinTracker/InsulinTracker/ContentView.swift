@@ -27,6 +27,7 @@ struct ContentView: View {
                 )
 
                 RecommendationPanel()
+                NavBar()
             }
         }
         .padding()
@@ -153,6 +154,48 @@ struct RecommendationPanel: View {
 
             }
             Spacer()
+        }
+    }
+}
+struct NavBar: View{
+    var body: some View{
+        //TODO: Add button actions that route to correct pages
+        HStack(spacing:45)
+        {
+            //Entry Button
+            Button(action: {}, label: {
+                Image(systemName: "syringe")
+                    .resizable()
+                    .frame(width:40, height:40)
+                    .foregroundColor(.black)
+                    
+            })
+            
+            //History Button
+            Button(action: {}, label: {
+                Image(systemName: "heart.circle")
+                    .resizable()
+                    .frame(width:40, height:40)
+                    .foregroundColor(.black)
+                    
+            })
+            
+            //Profile Button
+            Button(action: {}, label: {
+                Image(systemName: "person.crop.circle")
+                    .resizable()
+                    .frame(width: 40, height: 40)
+                    .foregroundColor(.black)
+            })
+            
+            //More Button
+            Button(action: {}, label: {
+                Image(systemName: "ellipsis.rectangle")
+                    .resizable()
+                    .frame(width:40, height:40)
+                    .foregroundColor(.black)
+            })
+            
         }
     }
 }
