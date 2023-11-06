@@ -11,28 +11,31 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             VStack {
-                VStack{
-                    EntryHeader()
-                }.frame(maxWidth: .infinity, alignment: .center)
-                VStack{
-                    TimeSelector()
-                    EntryTypeSelector()
-                    BloodSugarSelector()
-                    EnteredBySelector()
-                    ValidatedBySelector()
-                    Note()
-                }.overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(.gray, lineWidth: 2)
-                )
+                NavigationStack{
+                    VStack{
+                        EntryHeader()
+                    }.frame(maxWidth: .infinity, alignment: .center)
+                    VStack{
+                        TimeSelector()
+                        EntryTypeSelector()
+                        BloodSugarSelector()
+                        EnteredBySelector()
+                        ValidatedBySelector()
+                        Note()
+                    }.overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.gray, lineWidth: 2)
+                    )
 
-                RecommendationPanel()
-                NavBar()
+                    RecommendationPanel()
+                    NavBar()
+                }
             }
         }
         .padding()
     }
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
@@ -157,45 +160,74 @@ struct RecommendationPanel: View {
         }
     }
 }
-struct NavBar: View{
-    var body: some View{
-        //TODO: Add button actions that route to correct pages
-        HStack(spacing:45)
-        {
-            //Entry Button
-            Button(action: {}, label: {
-                Image(systemName: "syringe")
-                    .resizable()
-                    .frame(width:40, height:40)
-                    .foregroundColor(.black)
+struct NavBar: View
+{
+    var body: some View
+    {
+            HStack(spacing:45)
+            {
+                //Entry Button
+                NavigationLink{
+                    EntryView()
+                } label:{
+                    VStack
+                    {//VStack is needed if you want Text underneath image.
+                        Image(systemName: "syringe")
+                            .resizable()
+                            .frame(width:40, height:40)
+                            .foregroundColor(.black)
+                        Text("Entry")
+                            .foregroundColor(.black )
+                    }
                     
-            })
-            
-            //History Button
-            Button(action: {}, label: {
-                Image(systemName: "heart.circle")
-                    .resizable()
-                    .frame(width:40, height:40)
-                    .foregroundColor(.black)
-                    
-            })
-            
-            //Profile Button
-            Button(action: {}, label: {
-                Image(systemName: "person.crop.circle")
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(.black)
-            })
-            
-            //More Button
-            Button(action: {}, label: {
-                Image(systemName: "ellipsis.rectangle")
-                    .resizable()
-                    .frame(width:40, height:40)
-                    .foregroundColor(.black)
-            })
-            
-        }
+                }
+
+                
+                //History Button
+                NavigationLink{
+                    HistoryView()
+                }label:{
+                    VStack
+                    {
+                        Image(systemName: "calendar.badge.clock")
+                            .resizable()
+                            .frame(width:40, height:40)
+                            .foregroundColor(.black)
+                        Text("History")
+                            .foregroundColor(.black)
+                    }
+                }
+                
+                //Profile Button
+                NavigationLink{
+                    ProfileView()
+                }label:{
+                    VStack
+                    {
+                        Image(systemName: "person.crop.circle")
+                            .resizable()
+                            .frame(width:40, height:40)
+                            .foregroundColor(.black)
+                        Text("Profile")
+                            .foregroundColor(.black)
+                    }
+                }
+
+                
+                //Settings/More Button
+                NavigationLink{
+                    SettingsView()
+                    } label:{
+                        VStack
+                        {
+                            Image(systemName: "ellipsis.rectangle")
+                                .resizable()
+                                .frame(width:40, height:40)
+                                .foregroundColor(.black)
+                            Text("More")
+                                .foregroundColor(.black)
+                        }
+                    }
+                }
     }
 }
