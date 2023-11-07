@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct ContentView: View {
     var body: some View {
@@ -15,17 +16,16 @@ struct ContentView: View {
                     VStack{
                         EntryHeader()
                     }.frame(maxWidth: .infinity, alignment: .center)
-                    VStack{
-                        TimeSelector()
-                        EntryTypeSelector()
-                        BloodSugarSelector()
-                        EnteredBySelector()
-                        ValidatedBySelector()
-                        Note()
-                    }.overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(.gray, lineWidth: 2)
-                    )
+                    GroupBox{
+                        VStack{
+                            TimeSelector()
+                            EntryTypeSelector()
+                            BloodSugarSelector()
+                            EnteredBySelector()
+                            ValidatedBySelector()
+                            Note()
+                        }
+                    }
 
                     RecommendationPanel()
                     NavBar()
@@ -65,49 +65,84 @@ struct TimeSelector: View {
 }
 
 struct EntryTypeSelector: View {
+
+    enum entryTypes : String, CaseIterable {
+        case breakfast = "Breakfast"
+        case lunch = "Lunch"
+        case dinner = "Dinner"
+        case other = "Other"
+    }
+
+    let buttons: [String] = entryTypes.allCases.map { $0.rawValue }
+    
+    @State private var selectedEntryType: entryTypes = entryTypes.breakfast;
+    @State public var buttonSelected: Int?
+    
+    private func recordEntyType(entryType: entryTypes){
+        self.selectedEntryType = entryType
+    }
+    
     var body: some View {
         VStack{
             Text("Entry Type").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
             
         }.padding()
-        ControlGroup {
-            Button(action: {}) {
-                Text("Breakfast")
-            }
-            Button(action: {}) {
-                Text("Lunch")
-            }
-            Button(action: {}) {
-                Text("Dinner")
-            }
-            Button(action: {}) {
-                Text("Other")
+        HStack{
+            ForEach(0..<buttons.count) { button in
+                Button(action: {
+                    self.buttonSelected = button
+                }) {
+                    Text(self.buttons[button])
+                }.foregroundColor(.white)
+                    .background(self.buttonSelected == button ? Color.blue : Color.gray)
+                    .frame(width: 60.0)
+                    .clipShape(Capsule())
             }
         }
-        .padding(.horizontal)
+        
     }
+    
+    
 }
 
 struct BloodSugarSelector: View {
+    @State private var bloodSugarLevel = "0";
+    
+
     var body: some View {
         VStack{
             HStack{
-                Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
-                TextField("Level", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                
+                Text("Blood Sugar Level").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .center)
+                //Enforces that input must be a valid integer
+                TextField("BloodSugarLevel", text: $bloodSugarLevel)
+                    .keyboardType(.numberPad)
+                    .onReceive(Just(bloodSugarLevel)) { newValue in
+                        let filtered = newValue.filter { "0123456789".contains($0) }
+                        if filtered != newValue {
+                            self.bloodSugarLevel = filtered
+                        }
+                    }.padding()
             }
-        }.padding()
+        }
+    }
+    
+    public func getBloodSugarLevel() -> Int? {
+        return Int(self.bloodSugarLevel)
     }
 }
 
 struct EnteredBySelector: View {
+    @State private var enteredByName = "";
+
     var body: some View {
         VStack{
             HStack{
                 Text("Entered By").font(.system(size:18, weight: .medium))
                 Spacer()
-                TextField("Name", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-            }
+                TextField("Name", text: $enteredByName).onReceive(Just(enteredByName)) { enteredByName in
+                        self.enteredByName = enteredByName
+                    }
+                }
         }.padding()
     }
 }
