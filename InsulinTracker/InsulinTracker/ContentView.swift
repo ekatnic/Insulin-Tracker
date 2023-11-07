@@ -153,12 +153,12 @@ struct ValidatedBySelector: View {
     var body: some View {
         VStack{
             HStack{
-                Text("Validated By").font(.system(size:15, weight: .medium))
+                Text("Validated By").font(.system(size:17, weight: .medium)).frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
                 TextField("Name", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                Spacer()
+                
                 Text("Pin").font(.system(size:15, weight: .medium))
                 TextField("Pin", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                Spacer()
+                
             }
         }.padding()
     }
