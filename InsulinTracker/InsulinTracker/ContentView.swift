@@ -28,6 +28,7 @@ struct ContentView: View {
                     }
 
                     RecommendationPanel()
+                    Spacer()
                     NavBar()
                 }
             }
@@ -92,14 +93,14 @@ struct EntryTypeSelector: View {
                 Button(action: {
                     self.buttonSelected = button
                 }) {
-                    Text(self.buttons[button])
+                    Text(self.buttons[button]).font(.system(size:16))
                 }.foregroundColor(.white)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 8)
                     .background(self.buttonSelected == button ? Color.blue : Color.gray)
-                    .frame(width: 60.0)
-                    .clipShape(Capsule())
+                    .cornerRadius(8)
             }
         }
-        
     }
     
     
@@ -112,7 +113,8 @@ struct BloodSugarSelector: View {
     var body: some View {
         VStack{
             HStack{
-                Text("Blood Sugar Level").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .center)
+                Spacer()
+                Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
                 //Enforces that input must be a valid integer
                 TextField("BloodSugarLevel", text: $bloodSugarLevel)
                     .keyboardType(.numberPad)
