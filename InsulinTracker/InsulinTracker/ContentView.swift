@@ -199,7 +199,7 @@ struct RecommendationPanel: View {
     @State private var noteText: String = "Placeholder of Dosage"
     @EnvironmentObject var entryType: EntryType
     @EnvironmentObject var bloodSugarLevel: BloodSugarLevel
-
+    
     var body: some View {
         VStack{
             Text(self.noteText)
@@ -214,15 +214,89 @@ struct RecommendationPanel: View {
                     print(bloodSugarLevel.level)
                 }
                 .padding([.top, .leading], 20.0)
-
             }
         }.padding([.top, .bottom], 25)
     }
     
     private func displayDosage(){
-        self.noteText = !entryType.type.isEmpty ? entryType.type + bloodSugarLevel.level : self.noteText + bloodSugarLevel.level
+        let dosage = calculateDosage(entryType: entryType.type, bloodSugarLevel: bloodSugarLevel.level)!
+        self.noteText = "\(dosage.0) \(dosage.1)"
+    }
+    
+    private func calculateDosage(entryType: String, bloodSugarLevel: String) -> (String, Int)? {
+        let processedBloodSugarLevel = getBucketedBloodSugarLevel(entryType: entryType, bloodSugarLevelString: bloodSugarLevel)
+        
+        let dosageDict : [String : Dictionary] = getDosageDict()
+
+        return dosageDict[entryType]![processedBloodSugarLevel]
+    }
+
+    private func getBucketedBloodSugarLevel(entryType: String, bloodSugarLevelString: String) -> String {
+        let bloodSugarLevel : Int? = Int(bloodSugarLevelString)
+        if (entryType == "Breakfast" || entryType == "Lunch") {
+            if (bloodSugarLevel! < 80) {
+                return "<80"
+            } else if (bloodSugarLevel! < 121) {
+                return "81:120"
+            } else if (bloodSugarLevel! < 151) {
+                return "121:150"
+            } else if (bloodSugarLevel! < 201) {
+                return "151:200"
+            } else if (bloodSugarLevel! < 251) {
+                return "201:250"
+            } else {
+                return "NA"
+            }
+        } else if (entryType == "Dinner"){
+            if (bloodSugarLevel! < 80) {
+                return "<80"
+            } else if (bloodSugarLevel! < 121) {
+                return "81:120"
+            } else if (bloodSugarLevel! < 161) {
+                return "121:160"
+            } else if (bloodSugarLevel! < 201) {
+                return "161:200"
+            } else if (bloodSugarLevel! < 251) {
+                return "201:250"
+            } else {
+                return ">250"
+            }
+        } else if (entryType == "Other"){
+            return "any"
+        }
+        return "NA"
+    }
+    
+    private func getDosageDict() -> [String: Dictionary<String, (String, Int)>] {
+        let breakfastDosage = ["<80" : ("Humalog", 0),
+                                    "81:120" : ("Humalog", 8),
+                                    "121:150" : ("Humalog", 10),
+                                    "151:200" : ("Humalog", 14),
+                                    "201:250" : ("Humalog", 16)
+                            ]
+        let lunchDosage = ["<80" : ("Humalog", 0),
+                           "81:120" : ("Humalog", 8),
+                           "121:150" : ("Humalog", 10),
+                           "151:200" : ("Humalog", 14),
+                           "201:250" : ("Humalog", 16)
+                           ]
+        let dinnerDosage = ["<80" : ("Humalog", 0),
+                            "81:120" : ("Humalog", 4),
+                            "121:160" : ("Humalog", 5),
+                            "161:200" : ("Humalog", 6),
+                            "201:250" : ("Humalog", 8),
+                            ">250" : ("Humalog", 10),
+                            ]
+        let otherDosage = ["any": ("Lantus", 16)]
+        return [
+            "Breakfast": breakfastDosage,
+            "Lunch": lunchDosage,
+            "Dinner": dinnerDosage,
+            "Other": otherDosage
+        ]
     }
 }
+
 
 struct NavBar: View
 {
