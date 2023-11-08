@@ -4,11 +4,29 @@
 //
 //  Created by Ethan Katnic on 10/31/23.
 //
-
 import SwiftUI
 import Combine
 
+
+enum entryTypes : String, CaseIterable {
+    case breakfast = "Breakfast"
+    case lunch = "Lunch"
+    case dinner = "Dinner"
+    case other = "Other"
+}
+
+class EntryType: ObservableObject {
+    @Published var type = ""
+}
+
+class BloodSugarLevel: ObservableObject {
+    @Published var level = ""
+}
+
 struct ContentView: View {
+    @StateObject var entryType = EntryType()
+    @StateObject var bloodSugarLevel = BloodSugarLevel()
+
     var body: some View {
         ZStack {
             VStack {
@@ -26,13 +44,11 @@ struct ContentView: View {
                             Note()
                         }
                     }.groupBoxStyle(CustomGroupBoxStyle())
-                    
-
-
                     RecommendationPanel()
                     Spacer()
                     NavBar()
-                }
+                }.environmentObject(entryType)
+                .environmentObject(bloodSugarLevel)
             }
         }
         .padding()
@@ -80,18 +96,8 @@ struct TimeSelector: View {
 }
 
 struct EntryTypeSelector: View {
-
-    enum entryTypes : String, CaseIterable {
-        case breakfast = "Breakfast"
-        case lunch = "Lunch"
-        case dinner = "Dinner"
-        case other = "Other"
-    }
-
     let buttons: [String] = entryTypes.allCases.map { $0.rawValue }
-    
-    @State private var selectedEntryType: entryTypes = entryTypes.breakfast;
-    @State public var buttonSelected: String?
+    @EnvironmentObject var entryType: EntryType
     
     var body: some View {
         VStack{
@@ -101,43 +107,37 @@ struct EntryTypeSelector: View {
         HStack{
             ForEach(buttons, id: \.self) { button in
                 Button(action: {
-                    self.buttonSelected = button
+                    entryType.type = button
                 }) {
                     Text(button).font(.system(size:16))
                 }.foregroundColor(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
-                    .background(self.buttonSelected == button ? Color.blue : Color.gray)
+                    .background(entryType.type == button ? Color.blue : Color.gray)
                     .cornerRadius(8)
             }
         }
     }
-    
-    
 }
 
 struct BloodSugarSelector: View {
-    @State private var bloodSugarLevel = "0";
+    @EnvironmentObject var bloodSugarLevel: BloodSugarLevel
 
     var body: some View {
         VStack{
             HStack{
                 Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
                 //Enforces that input must be a valid integer
-                TextField("BloodSugarLevel", text: $bloodSugarLevel)
+                TextField("BSL", text: $bloodSugarLevel.level)
                     .keyboardType(.numberPad)
-                    .onReceive(Just(bloodSugarLevel)) { newValue in
+                    .onReceive(Just(bloodSugarLevel.level)) { newValue in
                         let filtered = newValue.filter { "0123456789".contains($0) }
                         if filtered != newValue {
-                            self.bloodSugarLevel = filtered
+                            bloodSugarLevel.level = filtered
                         }
-                    }.padding([.leading])
+                    }
             }
         }.padding([.top, .leading])
-    }
-    
-    public func getBloodSugarLevel() -> Int? {
-        return Int(self.bloodSugarLevel)
     }
 }
 
@@ -197,25 +197,33 @@ struct Note: View {
 
 struct RecommendationPanel: View {
     @State private var noteText: String = "Placeholder of Dosage"
+    @EnvironmentObject var entryType: EntryType
+    @EnvironmentObject var bloodSugarLevel: BloodSugarLevel
 
     var body: some View {
         VStack{
             Text(self.noteText)
             HStack {
-                Button(action: {}) {
-                    Text("Calculate Dosage")
+                Button("Calculate Dosage")
+                {
+                    displayDosage()
                 }
                 .padding([.top, .trailing], 20.0)
                 
-                Button(action: {}) {
-                    Text("Submit ")
+                Button("Submit "){
+                    print(bloodSugarLevel.level)
                 }
                 .padding([.top, .leading], 20.0)
 
             }
         }.padding([.top, .bottom], 25)
     }
+    
+    private func displayDosage(){
+        self.noteText = !entryType.type.isEmpty ? entryType.type + bloodSugarLevel.level : self.noteText + bloodSugarLevel.level
+    }
 }
+
 struct NavBar: View
 {
     var body: some View
