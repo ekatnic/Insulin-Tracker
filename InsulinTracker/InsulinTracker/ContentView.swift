@@ -25,7 +25,9 @@ struct ContentView: View {
                             ValidatedBySelector()
                             Note()
                         }
-                    }
+                    }.groupBoxStyle(CustomGroupBoxStyle())
+                    
+
 
                     RecommendationPanel()
                     Spacer()
@@ -44,6 +46,18 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
+struct CustomGroupBoxStyle: GroupBoxStyle {
+    var backgroundColor: UIColor = UIColor.systemGroupedBackground
+    func makeBody(configuration: Configuration) -> some View {
+        VStack {
+            configuration.label
+            configuration.content
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 20, style: .circular)
+            .fill(Color(backgroundColor)))
+    }
+}
 
 
 struct EntryHeader: View {
@@ -61,7 +75,7 @@ struct TimeSelector: View {
     var body: some View {
         VStack{
             DatePicker(selection: /*@START_MENU_TOKEN@*/.constant(Date())/*@END_MENU_TOKEN@*/, label: { Text("Time").font(.system(size:20, weight: .medium)) })
-        }.padding()
+        }.padding([.top, .leading])
     }
 }
 
@@ -77,23 +91,19 @@ struct EntryTypeSelector: View {
     let buttons: [String] = entryTypes.allCases.map { $0.rawValue }
     
     @State private var selectedEntryType: entryTypes = entryTypes.breakfast;
-    @State public var buttonSelected: Int?
-    
-    private func recordEntyType(entryType: entryTypes){
-        self.selectedEntryType = entryType
-    }
+    @State public var buttonSelected: String?
     
     var body: some View {
         VStack{
             Text("Entry Type").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
             
-        }.padding()
+        }.padding([.top, .leading])
         HStack{
-            ForEach(0..<buttons.count) { button in
+            ForEach(buttons, id: \.self) { button in
                 Button(action: {
                     self.buttonSelected = button
                 }) {
-                    Text(self.buttons[button]).font(.system(size:16))
+                    Text(button).font(.system(size:16))
                 }.foregroundColor(.white)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
@@ -108,12 +118,10 @@ struct EntryTypeSelector: View {
 
 struct BloodSugarSelector: View {
     @State private var bloodSugarLevel = "0";
-    
 
     var body: some View {
         VStack{
             HStack{
-                Spacer()
                 Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
                 //Enforces that input must be a valid integer
                 TextField("BloodSugarLevel", text: $bloodSugarLevel)
@@ -123,9 +131,9 @@ struct BloodSugarSelector: View {
                         if filtered != newValue {
                             self.bloodSugarLevel = filtered
                         }
-                    }.padding()
+                    }.padding([.leading])
             }
-        }
+        }.padding([.top, .leading])
     }
     
     public func getBloodSugarLevel() -> Int? {
@@ -145,42 +153,54 @@ struct EnteredBySelector: View {
                         self.enteredByName = enteredByName
                     }
                 }
-        }.padding()
+        }.padding([.top, .leading])
     }
 }
 
 struct ValidatedBySelector: View {
+    @State private var validatedByName: String = "";
+    @State private var validatedByPin : String = "";
+
     var body: some View {
         VStack{
             HStack{
                 Text("Validated By").font(.system(size:17, weight: .medium)).frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
-                TextField("Name", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                
+                TextField("Name", text: $validatedByName).onReceive(Just(validatedByName)) { validatedByName in
+                    self.validatedByName = validatedByName
+                }
                 Text("Pin").font(.system(size:15, weight: .medium))
-                TextField("Pin", text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                
+                TextField("Pin", text: $validatedByPin)
+                    .keyboardType(.numberPad)
+                    .onReceive(Just(validatedByPin)) { newValue in
+                        let filtered = newValue.filter { "0123456789".contains($0) }
+                        if filtered != newValue {
+                            self.validatedByPin = filtered
+                        }
+                    }
             }
-        }.padding()
+        }.padding([.top, .leading])
     }
 }
 
 struct Note: View {
-    @State var fullText: String = "Write your note here..."
+    @State private var noteText: String = "Write your note here..."
 
     var body: some View {
         VStack{
-            TextEditor(text: $fullText).font(.custom("HelveticaNeue", size: 13))
+            TextEditor(text: $noteText).onReceive(Just(noteText)) { noteText in
+                self.noteText = noteText
+            }.font(.custom("HelveticaNeue", size: 13))
                 .frame(width: 326.0, height: 100)
-        }
+        }.padding(.leading)
     }
 }
 
 struct RecommendationPanel: View {
+    @State private var noteText: String = "Placeholder of Dosage"
+
     var body: some View {
         VStack{
-            Spacer()
-            Text("Placeholder of Recommended Dosage")
-            Spacer()
+            Text(self.noteText)
             HStack {
                 Button(action: {}) {
                     Text("Calculate Dosage")
@@ -193,8 +213,7 @@ struct RecommendationPanel: View {
                 .padding([.top, .leading], 20.0)
 
             }
-            Spacer()
-        }
+        }.padding([.top, .bottom], 25)
     }
 }
 struct NavBar: View
