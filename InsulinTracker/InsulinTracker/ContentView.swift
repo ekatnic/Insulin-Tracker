@@ -23,9 +23,14 @@ class BloodSugarLevel: ObservableObject {
     @Published var level = ""
 }
 
+class EnteredBy: ObservableObject {
+    @Published var name = ""
+}
+
 struct ContentView: View {
     @StateObject var entryType = EntryType()
     @StateObject var bloodSugarLevel = BloodSugarLevel()
+    @StateObject var enteredBy = EnteredBy()
 
     var body: some View {
         ZStack {
@@ -47,8 +52,10 @@ struct ContentView: View {
                     RecommendationPanel()
                     Spacer()
                     NavBar()
-                }.environmentObject(entryType)
+                }
+                .environmentObject(entryType)
                 .environmentObject(bloodSugarLevel)
+                .environmentObject(enteredBy)
             }
         }
         .padding()
@@ -142,17 +149,15 @@ struct BloodSugarSelector: View {
 }
 
 struct EnteredBySelector: View {
-    @State private var enteredByName = "";
-
+    @EnvironmentObject var enteredBy : EnteredBy
+    
     var body: some View {
         VStack{
             HStack{
                 Text("Entered By").font(.system(size:18, weight: .medium))
                 Spacer()
-                TextField("Name", text: $enteredByName).onReceive(Just(enteredByName)) { enteredByName in
-                        self.enteredByName = enteredByName
-                    }
-                }
+                TextField("Name", text: $enteredBy.name)
+            }
         }.padding([.top, .leading])
     }
 }
@@ -196,23 +201,43 @@ struct Note: View {
 }
 
 struct RecommendationPanel: View {
-    @State private var noteText: String = "Placeholder of Dosage"
+    @State private var dosageString: String = "Enter Data to Calc Dosage"
+    @State private var isCalculationComputed : Bool = false
+
     @EnvironmentObject var entryType: EntryType
     @EnvironmentObject var bloodSugarLevel: BloodSugarLevel
+    @EnvironmentObject var enteredBy : EnteredBy
     
     var body: some View {
         VStack{
-            Text(self.noteText)
+            Text(self.dosageString)
+                .foregroundColor(self.isCalculationComputed ? .green : .gray)
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(self.isCalculationComputed ? .green : .gray, lineWidth: 4)
+                )
+            
             HStack {
                 Button("Calculate Dosage")
                 {
+                    self.isCalculationComputed = true
                     displayDosage()
                 }
+                .disabled(!(entryType.type.count > 0 && bloodSugarLevel.level.count > 0))
+                .buttonStyle(.borderedProminent)
                 .padding([.top, .trailing], 20.0)
                 
                 Button("Submit "){
-                    print(bloodSugarLevel.level)
+                    print(enteredBy.name)
                 }
+                .disabled(
+                    !(entryType.type.count > 0
+                      && bloodSugarLevel.level.count > 0
+                      && enteredBy.name.count > 0
+                    )
+                )
+                .buttonStyle(.borderedProminent)
                 .padding([.top, .leading], 20.0)
             }
         }.padding([.top, .bottom], 25)
@@ -220,7 +245,7 @@ struct RecommendationPanel: View {
     
     private func displayDosage(){
         let dosage = calculateDosage(entryType: entryType.type, bloodSugarLevel: bloodSugarLevel.level)!
-        self.noteText = "\(dosage.0) \(dosage.1)"
+        self.dosageString =  dosage.1 > 0 ? "\(dosage.0) \(dosage.1)" : "\(dosage.0)"
     }
     
     private func calculateDosage(entryType: String, bloodSugarLevel: String) -> (String, Int)? {
@@ -228,6 +253,10 @@ struct RecommendationPanel: View {
         
         let dosageDict : [String : Dictionary] = getDosageDict()
 
+        // if entry type is NA or processed is NA, return none in some capacity
+        if(dosageDict[entryType] == nil || dosageDict[entryType]![processedBloodSugarLevel] == nil){
+            return ("No dosage found for \(entryType) with BSL in range \(processedBloodSugarLevel)", 0)
+        }
         return dosageDict[entryType]![processedBloodSugarLevel]
     }
 
@@ -245,7 +274,7 @@ struct RecommendationPanel: View {
             } else if (bloodSugarLevel! < 251) {
                 return "201:250"
             } else {
-                return "NA"
+                return ">250"
             }
         } else if (entryType == "Dinner"){
             if (bloodSugarLevel! < 80) {
@@ -268,19 +297,19 @@ struct RecommendationPanel: View {
     }
     
     private func getDosageDict() -> [String: Dictionary<String, (String, Int)>] {
-        let breakfastDosage = ["<80" : ("Humalog", 0),
+        let breakfastDosage = ["<80" : ("No insulin required", 0),
                                     "81:120" : ("Humalog", 8),
                                     "121:150" : ("Humalog", 10),
                                     "151:200" : ("Humalog", 14),
                                     "201:250" : ("Humalog", 16)
                             ]
-        let lunchDosage = ["<80" : ("Humalog", 0),
+        let lunchDosage = ["<80" : ("No insulin required", 0),
                            "81:120" : ("Humalog", 8),
                            "121:150" : ("Humalog", 10),
                            "151:200" : ("Humalog", 14),
                            "201:250" : ("Humalog", 16)
                            ]
-        let dinnerDosage = ["<80" : ("Humalog", 0),
+        let dinnerDosage = ["<80" : ("No insulin required", 0),
                             "81:120" : ("Humalog", 4),
                             "121:160" : ("Humalog", 5),
                             "161:200" : ("Humalog", 6),
