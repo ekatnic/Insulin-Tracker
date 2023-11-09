@@ -34,6 +34,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
+            Color(.blue)
             VStack {
                 NavigationStack{
                     VStack{
@@ -50,7 +51,6 @@ struct ContentView: View {
                         }
                     }.groupBoxStyle(CustomGroupBoxStyle())
                     RecommendationPanel()
-                    Spacer()
                     NavBar()
                 }
                 .environmentObject(entryType)
@@ -212,7 +212,7 @@ struct RecommendationPanel: View {
         VStack{
             Text(self.dosageString)
                 .foregroundColor(self.isCalculationComputed ? .green : .gray)
-                .padding()
+                .padding(10)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(self.isCalculationComputed ? .green : .gray, lineWidth: 4)
@@ -255,7 +255,7 @@ struct RecommendationPanel: View {
 
         // if entry type is NA or processed is NA, return none in some capacity
         if(dosageDict[entryType] == nil || dosageDict[entryType]![processedBloodSugarLevel] == nil){
-            return ("No dosage found for \(entryType) with BSL in range \(processedBloodSugarLevel)", 0)
+            return ("No dosage found", 0)
         }
         return dosageDict[entryType]![processedBloodSugarLevel]
     }
