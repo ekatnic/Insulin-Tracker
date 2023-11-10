@@ -26,7 +26,7 @@ class DosageLabel: ObservableObject {
     @Published var isCalculationComplete : Bool = false
 }
 
-struct ContentView: View {
+struct EntryView: View {
     @StateObject var entryData = EntryData()
     @StateObject var dosageLabel = DosageLabel()
 
@@ -62,7 +62,7 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        EntryView()
     }
 }
 
