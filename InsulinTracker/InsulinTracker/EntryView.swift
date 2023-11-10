@@ -34,6 +34,7 @@ struct EntryView: View {
         ZStack {
             VStack {
                 NavigationStack{
+                    //EntryView()
                     VStack{
                         EntryHeader()
                     }.frame(maxWidth: .infinity, alignment: .center)
@@ -50,6 +51,10 @@ struct EntryView: View {
                     }.groupBoxStyle(CustomGroupBoxStyle())
                     RecommendationPanel()
                     NavBar()
+                }
+                .tabItem
+                {
+                    Label("Entry", systemImage: "syringe")
                 }
                 .environmentObject(entryData)
                 .environmentObject(dosageLabel)
@@ -376,70 +381,29 @@ struct NavBar: View
 {
     var body: some View
     {
-            HStack(spacing:45)
+        TabView
+        {
+            Text("")
+            .tabItem
             {
-                //Entry Button
-                NavigationLink{
-                    EntryView()
-                } label:{
-                    VStack
-                    {//VStack is needed if you want Text underneath image.
-                        Image(systemName: "syringe")
-                            .resizable()
-                            .frame(width:40, height:40)
-                            .foregroundColor(.black)
-                        Text("Entry")
-                            .foregroundColor(.black )
-                    }
-                    
-                }
-
-                
-                //History Button
-                NavigationLink{
-                    HistoryView()
-                }label:{
-                    VStack
-                    {
-                        Image(systemName: "calendar.badge.clock")
-                            .resizable()
-                            .frame(width:40, height:40)
-                            .foregroundColor(.black)
-                        Text("History")
-                            .foregroundColor(.black)
-                    }
-                }
-                
-                //Profile Button
-                NavigationLink{
-                    ProfileView()
-                }label:{
-                    VStack
-                    {
-                        Image(systemName: "person.crop.circle")
-                            .resizable()
-                            .frame(width:40, height:40)
-                            .foregroundColor(.black)
-                        Text("Profile")
-                            .foregroundColor(.black)
-                    }
-                }
-
-                
-                //Settings/More Button
-                NavigationLink{
-                    SettingsView()
-                    } label:{
-                        VStack
-                        {
-                            Image(systemName: "ellipsis.rectangle")
-                                .resizable()
-                                .frame(width:40, height:40)
-                                .foregroundColor(.black)
-                            Text("More")
-                                .foregroundColor(.black)
-                        }
-                    }
-                }
+                Label("Entry", systemImage: "syringe")
+            }
+            Text("")
+                .tabItem
+            {
+                Label("History",systemImage:"calendar.badge.clock")
+            }
+            Text("")
+                .tabItem
+            {
+                Label("Profile",systemImage:"person.crop.circle")
+            }
+            Text("")
+                .tabItem
+            {
+                Label("More",systemImage:"ellipsis.rectangle")
+            }
+        }
+        
     }
 }
