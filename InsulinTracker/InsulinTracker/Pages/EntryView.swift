@@ -33,8 +33,6 @@ struct EntryView: View {
     var body: some View {
         ZStack {
             VStack {
-                NavigationStack{
-                    //EntryView()
                     VStack{
                         EntryHeader()
                     }.frame(maxWidth: .infinity, alignment: .center)
@@ -50,15 +48,9 @@ struct EntryView: View {
                         }
                     }.groupBoxStyle(CustomGroupBoxStyle())
                     RecommendationPanel()
-                    NavBar()
-                }
-                .tabItem
-                {
-                    Label("Entry", systemImage: "syringe")
-                }
-                .environmentObject(entryData)
-                .environmentObject(dosageLabel)
             }
+            .environmentObject(entryData)
+            .environmentObject(dosageLabel)
         }
         .padding()
     }
@@ -377,33 +369,3 @@ struct SubmitButton: View {
 }
 
 
-struct NavBar: View
-{
-    var body: some View
-    {
-        TabView
-        {
-            Text("")
-            .tabItem
-            {
-                Label("Entry", systemImage: "syringe")
-            }
-            Text("")
-                .tabItem
-            {
-                Label("History",systemImage:"calendar.badge.clock")
-            }
-            Text("")
-                .tabItem
-            {
-                Label("Profile",systemImage:"person.crop.circle")
-            }
-            Text("")
-                .tabItem
-            {
-                Label("More",systemImage:"ellipsis.rectangle")
-            }
-        }
-        
-    }
-}

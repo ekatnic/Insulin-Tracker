@@ -17,6 +17,7 @@ struct HistoryView: View
             VStack {
                 VStack{
                     History()
+                    TestingView()
                 }
             }
         }
@@ -24,6 +25,22 @@ struct HistoryView: View
     }
 }
 
+struct TestingView: View
+{
+    var body: some View
+    {
+        ZStack {
+            VStack {
+                VStack{
+                    Text("TestingTestingTesting")
+                }
+            }
+        }
+        .padding()
+    }
+    
+    
+}
 struct History: View
 {
     var body: some View

@@ -9,31 +9,54 @@ import Foundation
 
 import SwiftUI
 
+
+enum gender : String, CaseIterable {
+    case male = "Male"
+    case female = "Female"
+    case other = "Other"
+}
+class UserInformation: ObservableObject
+{
+    @Published var firstName = ""
+    @Published var lastName = ""
+    @Published var gender = ""
+}
+
 struct SettingsView: View
 {
+    @StateObject var userInformation = UserInformation()
     var body: some View
     {
         ZStack {
             VStack {
-                VStack{
-                    Settings()
+                VStack
+                {
+                    ProfileInformation()
                 }
             }
         }
+        .environmentObject(userInformation)
         .padding()
     }
 }
 
-struct Settings: View
+
+struct ProfileInformation: View
 {
+    @EnvironmentObject var userInformation: UserInformation
     var body: some View
     {
-        VStack{
-            HStack{
-                    Text("Settings Page.")
-                    Text("More settings")
+        VStack
+        {
+            Label("Profile",systemImage:"person.crop.circle")
+            Spacer()
+            HStack
+            {
+                TextField("First Name", text: $userInformation.firstName)
+                Spacer()
+                TextField("Last Name", text: $userInformation.lastName)
+                
             }
-        }.padding(.bottom)
+        }
     }
-    
 }
