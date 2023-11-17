@@ -13,13 +13,14 @@ import FirebaseDatabase
 
 struct RecommendationPanel: View {
     @EnvironmentObject var entryData : EntryData
+    @Binding public var showingPopup: Bool
     
     var body: some View {
         VStack{
             DosageRecommendation()
             HStack {
                 CalculateButton()
-                SubmitButton()
+                SubmitButton(showingPopup:$showingPopup)
             }
         }.padding([.top, .bottom], 25)
     }
@@ -146,6 +147,7 @@ struct CalculateButton: View {
 
 struct SubmitButton: View {
     @EnvironmentObject var entryData : EntryData
+    @Binding public var showingPopup: Bool
 
     private func writeNewEvent(entryData : EntryData) {
         let dataBase = Database.database().reference()
@@ -162,6 +164,7 @@ struct SubmitButton: View {
     {
         Button("Submit "){
             writeNewEvent(entryData: entryData)
+            showingPopup = true
         }
         .disabled(
             !(entryData.entryType.count > 0

@@ -8,7 +8,7 @@ import SwiftUI
 import Combine
 import FirebaseCore
 import FirebaseDatabase
-
+import PopupView
 
 enum entryTypes : String, CaseIterable {
     case breakfast = "Breakfast"
@@ -31,7 +31,8 @@ class DosageLabel: ObservableObject {
 struct EntryView: View {
     @StateObject var entryData = EntryData()
     @StateObject var dosageLabel = DosageLabel()
-    
+    @State var showingPopup = false
+
     var body: some View {
         ZStack {
             VStack {
@@ -49,10 +50,20 @@ struct EntryView: View {
                             ClearButton()
                         }
                     }.groupBoxStyle(CustomGroupBoxStyle())
-                    RecommendationPanel()
+                RecommendationPanel(showingPopup:$showingPopup)
             }
             .environmentObject(entryData)
             .environmentObject(dosageLabel)
+        }
+        .popup(isPresented: $showingPopup) {
+            Text("Submission entered!")
+                .frame(width: 200, height: 60)
+                .background(Color(red: 0.85, green: 0.8, blue: 0.95))
+                .cornerRadius(30.0)
+        } customize: {
+            $0
+                .autohideIn(2)
+                .position(.bottom)
         }
         .padding()
     }
