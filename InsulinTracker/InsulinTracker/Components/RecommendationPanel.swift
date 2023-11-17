@@ -156,7 +156,6 @@ struct SubmitButton: View {
         dateFormatter.dateFormat = "YY, MMM d, hh:mm"
         let entry : [String : Any] = [
             "bsl" : entryData.bloodSugarLevel,
-            "name" : entryData.enteredByName,
             "meal": entryData.entryType.rawValue,
             "entryTime": dateFormatter.string(from: entryData.entryTime),
             "administeredByName": entryData.administeredByName.rawValue
@@ -171,9 +170,7 @@ struct SubmitButton: View {
             showingPopup = true
         }
         .disabled(
-            !(entryData.bloodSugarLevel.count > 0
-              && entryData.enteredByName.count > 0
-            )
+            !(entryData.bloodSugarLevel.count > 0)
         )
         .buttonStyle(.borderedProminent)
         .padding([.top, .leading], 20.0)

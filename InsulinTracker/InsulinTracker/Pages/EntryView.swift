@@ -25,7 +25,6 @@ enum EntryTypes : String, CaseIterable {
 class EntryData: ObservableObject {
     @Published var entryType : EntryTypes = EntryTypes.daily
     @Published var bloodSugarLevel : String = ""
-    @Published var enteredByName : String = ""
     @Published var entryTime : Date = Date.now
     @Published var administeredByName : AdministeredByOptions = AdministeredByOptions.myself
 }
@@ -51,7 +50,6 @@ struct EntryView: View {
                             TimeSelector()
                             EntryTypeSelector()
                             BloodSugarSelector()
-                            EnteredBySelector()
                             AdministeredBySelector()
                             Note()
                             ClearButton()
@@ -158,19 +156,6 @@ struct BloodSugarSelector: View {
     }
 }
 
-struct EnteredBySelector: View {
-    @EnvironmentObject var entryData: EntryData
-
-    var body: some View {
-        VStack{
-            HStack{
-                Text("Entered By").font(.system(size:18, weight: .medium))
-                Spacer()
-                TextField("Name", text: $entryData.enteredByName)
-            }
-        }.padding([.top, .leading], 8)
-    }
-}
 
 struct AdministeredBySelector: View {
     @EnvironmentObject var entryData : EntryData
@@ -216,7 +201,6 @@ struct ClearButton: View {
                 {
                     entryData.entryType = EntryTypes.daily
                     entryData.bloodSugarLevel = ""
-                    entryData.enteredByName = ""
                     entryData.entryTime = Date.now
                     entryData.administeredByName = AdministeredByOptions.myself
                     dosageLabel.text = "Enter Data to Calc Dosage"
@@ -250,6 +234,20 @@ struct ClearButton: View {
 //                            self.validatedByPin = filtered
 //                        }
 //                    }
+//            }
+//        }.padding([.top, .leading], 8)
+//    }
+//}
+
+//struct EnteredBySelector: View {
+//    @EnvironmentObject var entryData: EntryData
+//
+//    var body: some View {
+//        VStack{
+//            HStack{
+//                Text("Entered By").font(.system(size:18, weight: .medium))
+//                Spacer()
+//                TextField("Name", text: $entryData.enteredByName)
 //            }
 //        }.padding([.top, .leading], 8)
 //    }
