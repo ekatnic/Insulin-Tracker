@@ -54,7 +54,7 @@ struct CalculateButton: View {
             dosageLabel.isCalculationComplete = true
             displayDosage()
         }
-        .disabled(!(entryData.entryType.count > 0 && entryData.bloodSugarLevel.count > 0))
+        .disabled(!(entryData.bloodSugarLevel.count > 0))
         .buttonStyle(.borderedProminent)
         .padding([.top, .trailing], 20.0)
     }
@@ -66,10 +66,10 @@ struct CalculateButton: View {
         dosageLabel.text =  dosageAmount > 0 ? "\(dosageMessage) \(dosageAmount)" : "\(dosageMessage)"
     }
 
-    private func calculateDosage(entryType: String, bloodSugarLevel: String) -> (String, Int)? {
+    private func calculateDosage(entryType: EntryTypes, bloodSugarLevel: String) -> (String, Int)? {
         let processedBloodSugarLevel = getBucketedBloodSugarLevel(entryType: entryType, bloodSugarLevelString: bloodSugarLevel)
 
-        let dosageDict : [String : Dictionary] = getDosageDict()
+        let dosageDict : [EntryTypes : Dictionary] = getDosageDict()
 
         // if entry type is NA or processed is NA, return none in some capacity
         if(dosageDict[entryType] == nil || dosageDict[entryType]![processedBloodSugarLevel] == nil){
@@ -78,9 +78,9 @@ struct CalculateButton: View {
         return dosageDict[entryType]![processedBloodSugarLevel]
     }
 
-    private func getBucketedBloodSugarLevel(entryType: String, bloodSugarLevelString: String) -> String {
+    private func getBucketedBloodSugarLevel(entryType: EntryTypes, bloodSugarLevelString: String) -> String {
         let bloodSugarLevel : Int? = Int(bloodSugarLevelString)
-        if (entryType == entryTypes.breakfast.rawValue || entryType == entryTypes.lunch.rawValue) {
+        if (entryType == EntryTypes.breakfast || entryType == EntryTypes.lunch) {
             if (bloodSugarLevel! < 80) {
                 return "<80"
             } else if (bloodSugarLevel! < 121) {
@@ -94,7 +94,7 @@ struct CalculateButton: View {
             } else {
                 return ">250"
             }
-        } else if (entryType == entryTypes.dinner.rawValue){
+        } else if (entryType == EntryTypes.dinner){
             if (bloodSugarLevel! < 80) {
                 return "<80"
             } else if (bloodSugarLevel! < 121) {
@@ -108,13 +108,13 @@ struct CalculateButton: View {
             } else {
                 return ">250"
             }
-        } else if (entryType == entryTypes.daily.rawValue){
+        } else if (entryType == EntryTypes.daily){
             return "any"
         }
         return "NA"
     }
 
-    private func getDosageDict() -> [String: Dictionary<String, (String, Int)>] {
+    private func getDosageDict() -> [EntryTypes: Dictionary<String, (String, Int)>] {
         let breakfastDosage = ["<80" : ("No insulin required", 0),
                                     "81:120" : ("Humalog", 8),
                                     "121:150" : ("Humalog", 10),
@@ -136,10 +136,10 @@ struct CalculateButton: View {
                             ]
         let dailyDosage = ["any": ("Lantus", 16)]
         return [
-            entryTypes.breakfast.rawValue: breakfastDosage,
-            entryTypes.lunch.rawValue: lunchDosage,
-            entryTypes.dinner.rawValue: dinnerDosage,
-            entryTypes.daily.rawValue: dailyDosage
+            EntryTypes.breakfast: breakfastDosage,
+            EntryTypes.lunch: lunchDosage,
+            EntryTypes.dinner: dinnerDosage,
+            EntryTypes.daily: dailyDosage
         ]
     }
 }
@@ -152,10 +152,14 @@ struct SubmitButton: View {
     private func writeNewEvent(entryData : EntryData) {
         let dataBase = Database.database().reference()
         let ref = dataBase.child("entries")
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YY, MMM d, hh:mm"
         let entry : [String : Any] = [
             "bsl" : entryData.bloodSugarLevel,
             "name" : entryData.enteredByName,
-            "meal": entryData.entryType,
+            "meal": entryData.entryType.rawValue,
+            "entryTime": dateFormatter.string(from: entryData.entryTime),
+            "administeredByName": entryData.administeredByName.rawValue
         ]
         ref.childByAutoId().setValue(entry)
     }
@@ -167,8 +171,7 @@ struct SubmitButton: View {
             showingPopup = true
         }
         .disabled(
-            !(entryData.entryType.count > 0
-              && entryData.bloodSugarLevel.count > 0
+            !(entryData.bloodSugarLevel.count > 0
               && entryData.enteredByName.count > 0
             )
         )

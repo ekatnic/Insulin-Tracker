@@ -10,17 +10,24 @@ import FirebaseCore
 import FirebaseDatabase
 import PopupView
 
-enum entryTypes : String, CaseIterable {
+enum AdministeredByOptions : String, CaseIterable {
+    case myself = "Self"
+    case other = "Other"
+}
+
+enum EntryTypes : String, CaseIterable {
+    case daily = "Daily"
     case breakfast = "Breakfast"
     case lunch = "Lunch"
     case dinner = "Dinner"
-    case daily = "Daily"
 }
 
 class EntryData: ObservableObject {
-    @Published var entryType = ""
-    @Published var bloodSugarLevel = ""
-    @Published var enteredByName = ""
+    @Published var entryType : EntryTypes = EntryTypes.daily
+    @Published var bloodSugarLevel : String = ""
+    @Published var enteredByName : String = ""
+    @Published var entryTime : Date = Date.now
+    @Published var administeredByName : AdministeredByOptions = AdministeredByOptions.myself
 }
 
 class DosageLabel: ObservableObject {
@@ -45,7 +52,7 @@ struct EntryView: View {
                             EntryTypeSelector()
                             BloodSugarSelector()
                             EnteredBySelector()
-                            ValidatedBySelector()
+                            AdministeredBySelector()
                             Note()
                             ClearButton()
                         }
@@ -102,15 +109,16 @@ struct EntryHeader: View {
 }
 
 struct TimeSelector: View {
+    @EnvironmentObject var entryData : EntryData
+    
     var body: some View {
         VStack{
-            DatePicker(selection: /*@START_MENU_TOKEN@*/.constant(Date())/*@END_MENU_TOKEN@*/, label: { Text("Time").font(.system(size:18, weight: .medium)) })
+            DatePicker(selection: $entryData.entryTime, label: { Text("Time").font(.system(size:18, weight: .medium)) })
         }.padding([.top, .leading], 8)
     }
 }
 
 struct EntryTypeSelector: View {
-    let buttons: [String] = entryTypes.allCases.map { $0.rawValue }
     @EnvironmentObject var entryData: EntryData
     
     var body: some View {
@@ -119,17 +127,12 @@ struct EntryTypeSelector: View {
             
         }.padding([.top, .leading], 8)
         HStack{
-            ForEach(buttons, id: \.self) { button in
-                Button(action: {
-                    entryData.entryType = button
-                }) {
-                    Text(button).font(.system(size:16))
-                }.foregroundColor(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 8)
-                    .background(entryData.entryType == button ? Color.blue : Color.gray)
-                    .cornerRadius(8)
+            Picker("Entry Type", selection: $entryData.entryType) {
+                ForEach(EntryTypes.allCases, id: \.self) { option in
+                    Text(option.rawValue)
+                }
             }
+            .pickerStyle(.segmented)
         }
     }
 }
@@ -169,28 +172,22 @@ struct EnteredBySelector: View {
     }
 }
 
-struct ValidatedBySelector: View {
-    @State private var validatedByName: String = "";
-    @State private var validatedByPin : String = "";
+struct AdministeredBySelector: View {
+    @EnvironmentObject var entryData : EntryData
 
     var body: some View {
         VStack{
             HStack{
-                Text("Validated By").font(.system(size:17, weight: .medium)).frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
-                TextField("Name", text: $validatedByName).onReceive(Just(validatedByName)) { validatedByName in
-                    self.validatedByName = validatedByName
-                }
-                Text("Pin").font(.system(size:15, weight: .medium))
-                TextField("Pin", text: $validatedByPin)
-                    .keyboardType(.numberPad)
-                    .onReceive(Just(validatedByPin)) { newValue in
-                        let filtered = newValue.filter { "0123456789".contains($0) }
-                        if filtered != newValue {
-                            self.validatedByPin = filtered
-                        }
+                Text("Administered By").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
+                Picker("Administered By", selection: $entryData.administeredByName) {
+                    ForEach(AdministeredByOptions.allCases, id: \.self) { option in
+                        Text(option.rawValue)
                     }
-            }
-        }.padding([.top, .leading], 8)
+                }
+                .pickerStyle(.segmented)
+            }.padding([.top, .leading], 8)
+            
+        }
     }
 }
 
@@ -217,11 +214,14 @@ struct ClearButton: View {
                 Spacer()
                 Button("Clear")
                 {
-                    entryData.entryType = ""
+                    entryData.entryType = EntryTypes.daily
                     entryData.bloodSugarLevel = ""
                     entryData.enteredByName = ""
+                    entryData.entryTime = Date.now
+                    entryData.administeredByName = AdministeredByOptions.myself
                     dosageLabel.text = "Enter Data to Calc Dosage"
                     dosageLabel.isCalculationComplete = false
+                    
                 }
                 .padding(3)
                 .buttonStyle(.borderedProminent)
@@ -229,3 +229,28 @@ struct ClearButton: View {
         }
     }
 }
+
+//struct ValidatedBySelector: View {
+//    @State private var validatedByName: String = "";
+//    @State private var validatedByPin : String = "";
+//
+//    var body: some View {
+//        VStack{
+//            HStack{
+//                Text("Validated By").font(.system(size:17, weight: .medium)).frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
+//                TextField("Name", text: $validatedByName).onReceive(Just(validatedByName)) { validatedByName in
+//                    self.validatedByName = validatedByName
+//                }
+//                Text("Pin").font(.system(size:15, weight: .medium))
+//                TextField("Pin", text: $validatedByPin)
+//                    .keyboardType(.numberPad)
+//                    .onReceive(Just(validatedByPin)) { newValue in
+//                        let filtered = newValue.filter { "0123456789".contains($0) }
+//                        if filtered != newValue {
+//                            self.validatedByPin = filtered
+//                        }
+//                    }
+//            }
+//        }.padding([.top, .leading], 8)
+//    }
+//}
