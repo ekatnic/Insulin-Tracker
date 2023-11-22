@@ -22,9 +22,8 @@ struct RecommendationPanel: View {
                 CalculateButton()
                 SubmitButton(showingPopup:$showingPopup)
             }
-        }.padding([.top, .bottom], 25)
+        }.padding([.top], 25)
     }
-
 }
 
 
@@ -32,13 +31,21 @@ struct DosageRecommendation: View {
     @EnvironmentObject var dosageLabel : DosageLabel
     var body: some View
     {
-        Text(dosageLabel.text)
-            .foregroundColor(dosageLabel.isCalculationComplete ? .green : .gray)
-            .padding(10)
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(dosageLabel.isCalculationComplete ? .green : .gray, lineWidth: 4)
-            )
+        VStack{
+            if dosageLabel.isCalculationComplete {
+                Text("Your recommended insulin dosage is")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundColor(.green)
+            }
+            Text(dosageLabel.text)
+                .font(.system(size: dosageLabel.isCalculationComplete ? 34 : 24, weight: .medium))
+                .foregroundColor(dosageLabel.isCalculationComplete ? .green : .gray)
+                .padding(10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(dosageLabel.isCalculationComplete ? .green : .gray, lineWidth: 4)
+                )
+        }
     }
 }
 
@@ -63,7 +70,7 @@ struct CalculateButton: View {
         let dosage = calculateDosage(entryType: entryData.entryType, bloodSugarLevel: entryData.bloodSugarLevel)!
         let dosageMessage = dosage.0
         let dosageAmount = dosage.1
-        dosageLabel.text =  dosageAmount > 0 ? "\(dosageMessage) \(dosageAmount)" : "\(dosageMessage)"
+        dosageLabel.text =  dosageAmount > 0 ? "\(dosageAmount) units of \(dosageMessage)" : "\(dosageMessage)"
     }
 
     private func calculateDosage(entryType: EntryTypes, bloodSugarLevel: String) -> (String, Int)? {

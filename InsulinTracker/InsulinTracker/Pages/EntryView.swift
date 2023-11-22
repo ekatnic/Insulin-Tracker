@@ -30,7 +30,7 @@ class EntryData: ObservableObject {
 }
 
 class DosageLabel: ObservableObject {
-    @Published var text = "Enter Data to Calc Dosage"
+    @Published var text = "Enter B.S.L. to Calc Dosage"
     @Published var isCalculationComplete : Bool = false
 }
 
@@ -49,8 +49,8 @@ struct EntryView: View {
                         GroupBox{
                             VStack{
                                 TimeSelector()
-                                EntryTypeSelector()
                                 BloodSugarSelector()
+                                EntryTypeSelector()
                                 AdministeredBySelector()
                                 Note()
                                 ClearButton()
@@ -74,7 +74,6 @@ struct EntryView: View {
                     .position(.bottom)
             }
             .padding()
-            
         }
 
     }
@@ -118,7 +117,9 @@ struct TimeSelector: View {
     var body: some View {
         VStack{
             DatePicker(selection: $entryData.entryTime, label: { Text("Time").font(.system(size:18, weight: .medium)) })
-        }.padding([.top, .leading], 8)
+        }
+        .padding(.top, 14)
+        .padding(.leading, 8)
     }
 }
 
@@ -129,7 +130,9 @@ struct EntryTypeSelector: View {
         VStack{
             Text("Entry Type").font(.system(size:18, weight: .medium)).frame(maxWidth: .infinity, alignment: .leading)
             
-        }.padding([.top, .leading], 8)
+        }        
+        .padding(.top, 14)
+        .padding(.leading, 8)
         HStack{
             Picker("Entry Type", selection: $entryData.entryType) {
                 ForEach(EntryTypes.allCases, id: \.self) { option in
@@ -149,7 +152,11 @@ struct BloodSugarSelector: View {
             HStack{
                 Text("Blood Sugar Level").font(.system(size:18, weight: .medium))
                 //Enforces that input must be a valid integer
-                TextField("BSL", text: $entryData.bloodSugarLevel)
+                TextField("Enter BSL here", text: $entryData.bloodSugarLevel)
+                    .frame(width: 140)
+                    .padding(.leading, 20)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .multilineTextAlignment(.center)
                     .keyboardType(.numberPad)
                     .onReceive(Just(entryData.bloodSugarLevel)) { newValue in
                         let filtered = newValue.filter { "0123456789".contains($0) }
@@ -158,7 +165,10 @@ struct BloodSugarSelector: View {
                         }
                     }
             }
-        }.padding([.top, .leading], 8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 14)
+        .padding(.leading, 8)
     }
 }
 
@@ -176,8 +186,9 @@ struct AdministeredBySelector: View {
                     }
                 }
                 .pickerStyle(.segmented)
-            }.padding([.top, .leading], 8)
-            
+            }
+            .padding(.top, 14)
+            .padding(.leading, 8)
         }
     }
 }
@@ -191,7 +202,9 @@ struct Note: View {
                 self.noteText = noteText
             }.font(.custom("HelveticaNeue", size: 13))
                 .frame(width: 326.0, height: 70)
-        }.padding(.leading, 8)
+        }
+        .padding(.top, 14)
+        .padding(.leading, 8)
     }
 }
 
@@ -209,11 +222,11 @@ struct ClearButton: View {
                     entryData.bloodSugarLevel = ""
                     entryData.entryTime = Date.now
                     entryData.administeredByName = AdministeredByOptions.myself
-                    dosageLabel.text = "Enter Data to Calc Dosage"
+                    dosageLabel.text = "Enter BSL to Calc Dosage"
                     dosageLabel.isCalculationComplete = false
                     
                 }
-                .padding(3)
+                .padding(8)
                 .buttonStyle(.borderedProminent)
             }
         }
