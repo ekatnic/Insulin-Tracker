@@ -40,37 +40,43 @@ struct EntryView: View {
     @State var showingPopup = false
 
     var body: some View {
-        ZStack {
-            VStack {
-                    VStack{
-                        EntryHeader()
-                    }.frame(maxWidth: .infinity, alignment: .center)
-                    GroupBox{
+        ScrollView{
+            ZStack {
+                VStack {
                         VStack{
-                            TimeSelector()
-                            EntryTypeSelector()
-                            BloodSugarSelector()
-                            AdministeredBySelector()
-                            Note()
-                            ClearButton()
+                            EntryHeader()
+                        }.frame(maxWidth: .infinity, alignment: .center)
+                        GroupBox{
+                            VStack{
+                                TimeSelector()
+                                EntryTypeSelector()
+                                BloodSugarSelector()
+                                AdministeredBySelector()
+                                Note()
+                                ClearButton()
+                            }
                         }
-                    }.groupBoxStyle(CustomGroupBoxStyle())
-                RecommendationPanel(showingPopup:$showingPopup)
+                        .ignoresSafeArea(.keyboard)
+                        .groupBoxStyle(CustomGroupBoxStyle())
+                    RecommendationPanel(showingPopup:$showingPopup)
+                }
+                .environmentObject(entryData)
+                .environmentObject(dosageLabel)
             }
-            .environmentObject(entryData)
-            .environmentObject(dosageLabel)
+            .popup(isPresented: $showingPopup) {
+                Text("Submission entered!")
+                    .frame(width: 200, height: 60)
+                    .background(Color(red: 0.85, green: 0.8, blue: 0.95))
+                    .cornerRadius(30.0)
+            } customize: {
+                $0
+                    .autohideIn(2)
+                    .position(.bottom)
+            }
+            .padding()
+            
         }
-        .popup(isPresented: $showingPopup) {
-            Text("Submission entered!")
-                .frame(width: 200, height: 60)
-                .background(Color(red: 0.85, green: 0.8, blue: 0.95))
-                .cornerRadius(30.0)
-        } customize: {
-            $0
-                .autohideIn(2)
-                .position(.bottom)
-        }
-        .padding()
+
     }
 }
 

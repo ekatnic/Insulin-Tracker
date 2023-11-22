@@ -15,16 +15,19 @@ struct ContentView: View
 {
     var body: some View
     {
+        
         ZStack {
             VStack {
                 VStack{
+                    Spacer()
                     NavBar()
                 }
             }
         }
-        .padding()
     }
 }
+
+
 struct LandingPage: View {
     var body: some View {
         /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Hello, world!@*/Text("Hello, world!")/*@END_MENU_TOKEN@*/
@@ -48,27 +51,29 @@ struct NavBar: View
             .tabItem
             {
                 Label("Entry", systemImage: "syringe")
-                //EntryView()
-                //EntryView()
+
             }
+
+            
             HistoryView()
                 .tabItem
             {
                 Label("History",systemImage:"calendar.badge.clock")
-                //HistoryView()
+
             }.tag(2)
-            
+          
             ProfileView()
                 .tabItem
             {
                 Label("Profile",systemImage:"person.crop.circle")
             }.tag(3)
+            
             SettingsView()
                 .tabItem
             {
                 Label("Settings",systemImage:"ellipsis.rectangle")
             }.tag(4)
         }
-        
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 }
